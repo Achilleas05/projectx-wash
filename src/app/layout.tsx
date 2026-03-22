@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "ProjectX Wash · Car Detailing Nicosia",
-  description: "Premium mobile car detailing services in Nicosia, Cyprus.",
+  description:
+    "Premium car detailing in Cyprus with showroom-level finishes, tailored packages, and monthly plans.",
 };
 
 export default function RootLayout({
@@ -12,36 +15,56 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-px-bg text-slate-100 antialiased">
-        <div className="min-h-screen flex flex-col">
-          <header className="border-b border-px-gold/40 bg-gradient-to-r from-black to-px-bg">
-            <nav className="max-w-5xl mx-auto flex items-center justify-between py-4 px-4">
-              <div className="text-xl font-semibold tracking-tight text-px-gold">
-                ProjectX Wash
-              </div>
-              <div className="flex gap-4 text-sm text-slate-300">
-                <a
-                  href="#services"
-                  className="hover:text-px-gold transition-colors"
-                >
-                  Services
+        <Script id="header-scroll" strategy="afterInteractive">
+          {`
+            (() => {
+              const onScroll = () => {
+                if (window.scrollY > 20) {
+                  document.body.classList.add("is-scrolled");
+                } else {
+                  document.body.classList.remove("is-scrolled");
+                }
+              };
+              onScroll();
+              window.addEventListener("scroll", onScroll, { passive: true });
+            })();
+          `}
+        </Script>
+
+        <div className="flex min-h-screen flex-col">
+          <header className="site-header sticky top-0 z-50 border-b border-white/10 bg-gradient-to-r from-black/55 via-px-bg/45 to-black/55 backdrop-blur-xl">
+            <nav className="site-nav mx-auto flex w-full max-w-7xl items-center justify-between px-5 py-4 md:px-8 md:py-5">
+              <a href="#home" className="group flex items-center gap-3">
+                <Image
+                  src="/logo.jpeg"
+                  alt="ProjectX Wash logo"
+                  width={40}
+                  height={40}
+                  className="rounded-full border border-white/20 object-cover"
+                />
+                <span className="text-base font-medium uppercase tracking-[0.2em] text-slate-100 transition-colors group-hover:text-px-gold md:text-lg">
+                  ProjectX Wash
+                </span>
+              </a>
+
+              <div className="flex flex-wrap items-center justify-end gap-2 text-[11px] uppercase tracking-[0.18em] text-slate-300 md:gap-5 md:text-xs">
+                <a href="#home" className="group">
+                  <span className="nav-link">Home</span>
                 </a>
-                <a
-                  href="#gallery"
-                  className="hover:text-px-gold transition-colors"
-                >
-                  Gallery
+                <a href="#services" className="group">
+                  <span className="nav-link">Services</span>
                 </a>
-                <a
-                  href="#about"
-                  className="hover:text-px-gold transition-colors"
-                >
-                  About
+                <a href="#packages" className="group">
+                  <span className="nav-link">Packages</span>
                 </a>
-                <a
-                  href="#contact"
-                  className="hover:text-px-gold transition-colors"
-                >
-                  Contact
+                <a href="#gallery" className="group">
+                  <span className="nav-link">Gallery</span>
+                </a>
+                <a href="#about" className="group">
+                  <span className="nav-link">About</span>
+                </a>
+                <a href="#contact" className="group">
+                  <span className="nav-link">Contact</span>
                 </a>
               </div>
             </nav>
@@ -49,10 +72,10 @@ export default function RootLayout({
 
           <main className="flex-1">{children}</main>
 
-          <footer className="border-top border-px-gold/20">
-            <div className="max-w-5xl mx-auto py-6 px-4 text-xs text-slate-400 flex justify-between">
+          <footer className="border-t border-white/10 bg-black/30">
+            <div className="mx-auto flex w-full max-w-7xl flex-col justify-between gap-2 px-5 py-6 text-[11px] uppercase tracking-[0.12em] text-slate-500 sm:flex-row sm:items-center md:px-8">
               <span>© {new Date().getFullYear()} ProjectX Wash</span>
-              <span>Website by Achilleas Achilleos</span>
+              <span>Cyprus · @projectx.wash.cy</span>
             </div>
           </footer>
         </div>
