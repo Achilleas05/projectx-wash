@@ -287,9 +287,19 @@ export default function Home() {
   /* Floating CTA visibility */
   const [showFloat, setShowFloat] = useState(false);
   useEffect(() => {
-    const fn = () => setShowFloat(window.scrollY > 400);
+    const fn = () => {
+      const nearBottom =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 140;
+      setShowFloat(window.scrollY > 400 && !nearBottom);
+    };
+    fn();
     window.addEventListener("scroll", fn, { passive: true });
-    return () => window.removeEventListener("scroll", fn);
+    window.addEventListener("resize", fn);
+    return () => {
+      window.removeEventListener("scroll", fn);
+      window.removeEventListener("resize", fn);
+    };
   }, []);
 
   const s_services = useReveal(0.07);
