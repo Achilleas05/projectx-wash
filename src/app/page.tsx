@@ -1,12 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
 const D: React.CSSProperties = { fontFamily: "var(--font-display)" };
 const IG = "https://www.instagram.com/projectx.wash.cy/";
 
-/* ── Reveal hook ─────────────────────────────────── */
+/* ── Reveal hook ─────────────────────────────── */
 function useReveal(threshold = 0.1) {
   const ref = useRef<HTMLElement | null>(null);
   const [vis, setVis] = useState(false);
@@ -28,14 +28,34 @@ function useReveal(threshold = 0.1) {
   return { ref, vis };
 }
 
+/* ── Count-up hook ───────────────────────────── */
+function useCountUp(target: number, duration = 1400, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let frame = 0;
+    const totalFrames = Math.round(duration / 16);
+    const step = () => {
+      frame++;
+      const progress = Math.min(frame / totalFrames, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.floor(ease * target));
+      if (frame < totalFrames) requestAnimationFrame(step);
+      else setCount(target);
+    };
+    requestAnimationFrame(step);
+  }, [start, target, duration]);
+  return count;
+}
+
 const sg = (v: boolean, d: string) => `reveal-up ${v ? "in" : ""} ${d}`;
 
-/* ── Data ────────────────────────────────────────── */
+/* ── Data ────────────────────────────────────── */
 const STATS = [
-  { val: "500+", lbl: "Cars Detailed" },
-  { val: "4.9★", lbl: "Client Rating" },
-  { val: "3", lbl: "Packages" },
-  { val: "100%", lbl: "Paint-Safe" },
+  { num: 500, suffix: "+", lbl: "Cars Detailed" },
+  { num: 4, suffix: ".9★", lbl: "Client Rating" },
+  { num: 3, suffix: "", lbl: "Packages" },
+  { num: 100, suffix: "%", lbl: "Paint-Safe" },
 ];
 
 const MARQUEE = [
@@ -50,7 +70,30 @@ const MARQUEE = [
   "Nicosia · Cyprus",
 ];
 
-/* Exact data from uploaded images */
+const PROCESS = [
+  {
+    n: "01",
+    title: "Pre-Wash",
+    desc: "Snow foam & wheel blasting to loosen dirt",
+  },
+  {
+    n: "02",
+    title: "Decontam.",
+    desc: "Iron fallout & tar removal, paint-safe",
+  },
+  { n: "03", title: "Contact", desc: "Two-bucket wash with premium mitts" },
+  {
+    n: "04",
+    title: "Detail",
+    desc: "Interior, exhaust & wheel reconditioning",
+  },
+  {
+    n: "05",
+    title: "Protect",
+    desc: "Ceramic spray coating for lasting shine",
+  },
+];
+
 const PACKAGES = [
   {
     num: "01",
@@ -62,6 +105,7 @@ const PACKAGES = [
     cardCls: "border-white/[0.09] card-neon",
     ctaStyle: "border border-white/15 text-slate-300",
     ctaHover: "hover:border-[#9efc3f]/40 hover:text-[#9efc3f]",
+    shimmerDelay: "0s",
     items: ["Pre-wash", "Interior wash", "Interior vacuum", "Contact wash"],
   },
   {
@@ -75,6 +119,7 @@ const PACKAGES = [
       "border-[#9efc3f]/20 card-neon shadow-[0_0_50px_rgba(158,252,63,0.07)]",
     ctaStyle: "bg-[#9efc3f] text-black",
     ctaHover: "",
+    shimmerDelay: "1.2s",
     items: [
       "Pre-wash",
       "Full wheel reconditioning",
@@ -94,6 +139,7 @@ const PACKAGES = [
     cardCls: "border-[#f9b54a]/15 card-gold",
     ctaStyle: "border border-[#f9b54a]/25 text-[#f9b54a]/80",
     ctaHover: "hover:border-[#f9b54a]/50 hover:text-[#f9b54a]",
+    shimmerDelay: "2.4s",
     items: [
       "Pre-wash",
       "Full wheel reconditioning",
@@ -136,7 +182,38 @@ type Particle = {
   dur: string;
 };
 
-/* ── Before/After ──────────────────────────────── */
+/* ── Animated stat ───────────────────────────── */
+function AnimatedStat({
+  num,
+  suffix,
+  lbl,
+  start,
+}: {
+  num: number;
+  suffix: string;
+  lbl: string;
+  start: boolean;
+}) {
+  const count = useCountUp(num, 1300, start);
+  return (
+    <div>
+      <p
+        className={`text-[1.85rem] leading-none text-white md:text-[2.2rem] ${
+          start ? "num-flash" : ""
+        }`}
+        style={D}
+      >
+        {count}
+        {suffix}
+      </p>
+      <p className="mt-1 text-[8px] uppercase tracking-[0.22em] text-slate-500 md:text-[9px]">
+        {lbl}
+      </p>
+    </div>
+  );
+}
+
+/* ── Before/After ────────────────────────────── */
 function BeforeAfter() {
   const [pct, setPct] = useState(50);
   return (
@@ -193,7 +270,7 @@ export default function Home() {
     return () => clearTimeout(t);
   }, []);
 
-  /* Client-only particles */
+  /* Particles */
   const [particles, setParticles] = useState<Particle[]>([]);
   useEffect(() => {
     setParticles(
@@ -207,22 +284,40 @@ export default function Home() {
     );
   }, []);
 
+  /* Floating CTA visibility */
+  const [showFloat, setShowFloat] = useState(false);
+  useEffect(() => {
+    const fn = () => setShowFloat(window.scrollY > 400);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
   const s_services = useReveal(0.07);
+  const s_process = useReveal(0.1);
   const s_packages = useReveal(0.07);
   const s_gallery = useReveal(0.07);
   const s_about = useReveal(0.08);
   const s_contact = useReveal(0.12);
 
+  /* Stats count-up triggers when hero is visible */
+  const [statsStarted, setStatsStarted] = useState(false);
+  useEffect(() => {
+    if (hv) {
+      const t = setTimeout(() => setStatsStarted(true), 550);
+      return () => clearTimeout(t);
+    }
+  }, [hv]);
+
   return (
     <div className="px-ambient">
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           HERO
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <section
         id="home"
         className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
       >
-        {/* BG image */}
+        {/* BG */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/cars/porsche911gt3_2.jpeg"
@@ -231,11 +326,11 @@ export default function Home() {
             priority
             sizes="100vw"
             className={`object-cover object-center transition-transform ${
-              hv ? "hero-img-enter" : "scale-[1.07]"
+              hv ? "hero-img-enter" : "scale-[1.08]"
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-[#050509]/55 to-[#050509]/10" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050509]/85 via-[#050509]/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-[#050509]/55 to-[#050509]/08" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050509]/88 via-[#050509]/22 to-transparent" />
           <div className="spotlight-sweep" />
         </div>
 
@@ -260,7 +355,7 @@ export default function Home() {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-16 pt-28 md:px-10 md:pb-28 md:pt-40">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-14 pt-28 md:px-10 md:pb-28 md:pt-40">
           {/* Eyebrow */}
           <div
             className={`flex items-center gap-3 transition-all duration-700 delay-75 ${
@@ -273,9 +368,9 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Headline */}
+          {/* Headline — big clamp, mobile-first */}
           <h1
-            className={`mt-4 max-w-[95vw] text-[clamp(2.5rem,13vw,8.5rem)] leading-[0.91] tracking-[0.02em] text-white transition-all duration-700 delay-[120ms] md:mt-5 md:max-w-none md:text-[clamp(3.4rem,14vw,8.5rem)] ${
+            className={`mt-4 text-[clamp(2.8rem,14vw,8.5rem)] leading-[0.91] tracking-[0.02em] text-white transition-all duration-700 delay-[120ms] md:mt-5 ${
               hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={D}
@@ -287,9 +382,9 @@ export default function Home() {
             Precision.
           </h1>
 
-          {/* Body — hidden on very small screens to save space */}
+          {/* Subtext */}
           <p
-            className={`mt-5 max-w-[420px] text-[13px] leading-[1.85] text-slate-300/85 transition-all duration-700 delay-200 md:max-w-[460px] md:text-[15px] ${
+            className={`mt-5 max-w-[400px] text-[13px] leading-[1.85] text-slate-300/85 transition-all duration-700 delay-200 md:max-w-[460px] md:text-[15px] ${
               hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
             }`}
           >
@@ -321,7 +416,7 @@ export default function Home() {
             </a>
           </div>
 
-          {/* Stats — 2-col on mobile, 4-col on sm+ */}
+          {/* Stats — count-up on load */}
           <div
             className={`mt-10 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-4 sm:gap-x-10 transition-all duration-700 delay-[420ms] md:mt-14 ${
               hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
@@ -333,21 +428,18 @@ export default function Home() {
                 className="tick-in"
                 style={{ animationDelay: `${0.5 + i * 0.1}s` }}
               >
-                <p
-                  className="text-[1.85rem] leading-none text-white md:text-[2.1rem]"
-                  style={D}
-                >
-                  {s.val}
-                </p>
-                <p className="mt-1 text-[8px] uppercase tracking-[0.22em] text-slate-500 md:text-[9px]">
-                  {s.lbl}
-                </p>
+                <AnimatedStat
+                  num={s.num}
+                  suffix={s.suffix}
+                  lbl={s.lbl}
+                  start={statsStarted}
+                />
               </div>
             ))}
           </div>
         </div>
 
-        {/* Scroll indicator — hidden on mobile */}
+        {/* Scroll indicator desktop */}
         <div
           className={`absolute bottom-8 right-8 z-10 hidden flex-col items-center gap-2 transition-all duration-700 delay-[600ms] md:flex ${
             hv ? "opacity-100" : "opacity-0"
@@ -360,9 +452,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           MARQUEE
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <div className="relative overflow-hidden border-y border-white/[0.06] bg-[#0a0a10]/70 py-3 backdrop-blur-sm md:py-[14px]">
         <div className="marquee-track flex w-max">
           {[...MARQUEE, ...MARQUEE].map((item, i) => (
@@ -379,14 +471,75 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ══════════════════════════════════════
-          SERVICES — Package cards
-      ══════════════════════════════════════ */}
+      {/* ════════════════════════════════════════
+          PROCESS STRIP — horizontal scroll on mobile
+      ════════════════════════════════════════ */}
+      <section
+        ref={s_process.ref as React.RefObject<HTMLElement>}
+        className="border-b border-white/[0.05] bg-[#070710]/60"
+      >
+        <div className="mx-auto w-full max-w-7xl px-5 py-10 md:px-10 md:py-14">
+          <p
+            className={`${sg(
+              s_process.vis,
+              "delay-75"
+            )} mb-6 text-[9px] uppercase tracking-[0.34em] text-[#9efc3f]/75 md:text-[10px]`}
+          >
+            Our Process
+          </p>
+
+          {/* Horizontal scroll on mobile, 5-col on desktop */}
+          <div
+            className="process-scroll -mx-5 px-5 md:mx-0 md:px-0"
+            aria-label="Swipe horizontally to view all process steps"
+          >
+            <div className="process-track flex gap-3 md:grid md:grid-cols-5 md:gap-4">
+              {PROCESS.map((step, i) => (
+                <div
+                  key={step.n}
+                  className={`process-step reveal-left ${
+                    s_process.vis ? "in" : ""
+                  } flex-shrink-0 w-[160px] md:w-auto rounded-xl border border-white/[0.08] bg-[#0c0c12] p-4 md:p-5`}
+                  style={{ transitionDelay: `${80 + i * 80}ms` }}
+                >
+                  <p
+                    className="process-num text-[2rem] leading-none text-white/20 md:text-[2.5rem]"
+                    style={D}
+                  >
+                    {step.n}
+                  </p>
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white md:text-[12px]">
+                    {step.title}
+                  </p>
+                  <p className="mt-1.5 text-[10px] leading-[1.6] text-slate-500 md:text-[11px]">
+                    {step.desc}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Swipe hint on mobile */}
+          <p className="mt-3 text-center text-[9px] uppercase tracking-[0.22em] text-slate-700 md:hidden">
+            ← Swipe to see all steps →
+          </p>
+        </div>
+      </section>
+
+      {/* ════════════════════════════════════════
+          SERVICES
+      ════════════════════════════════════════ */}
       <section
         id="services"
         ref={s_services.ref as React.RefObject<HTMLElement>}
-        className="mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-36"
+        className="relative mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-36"
       >
+        {/* Big ghost section number */}
+        <span
+          className="section-num pointer-events-none select-none"
+          aria-hidden
+        ></span>
+
         <div className={sg(s_services.vis, "delay-75")}>
           <p className="text-[9px] uppercase tracking-[0.34em] text-[#9efc3f]/80 md:text-[10px]">
             Services & Packages
@@ -405,7 +558,7 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Package cards — single column mobile, 3-col desktop */}
+        {/* Cards */}
         <div className="mt-10 grid gap-4 md:mt-14 md:gap-5 lg:grid-cols-3">
           {PACKAGES.map((pkg, i) => (
             <article
@@ -413,14 +566,22 @@ export default function Home() {
               className={`${sg(
                 s_services.vis,
                 i === 0
-                  ? "delay-[100ms]"
+                  ? "delay-[100ms] mobile-stagger-1"
                   : i === 1
-                  ? "delay-[180ms]"
-                  : "delay-[260ms]"
+                  ? "delay-[180ms] mobile-stagger-2"
+                  : "delay-[260ms] mobile-stagger-3"
               )} service-card flex flex-col rounded-2xl border bg-[#0c0c12] p-5 md:p-7 ${
                 pkg.cardCls
               }`}
             >
+              {/* Shimmer */}
+              <div
+                className="card-shimmer"
+                style={
+                  { "--shimmer-delay": pkg.shimmerDelay } as React.CSSProperties
+                }
+              />
+
               {/* Badge */}
               <span
                 className={`absolute top-4 right-4 rounded-full px-2.5 py-0.5 text-[8px] font-semibold uppercase tracking-[0.2em] md:top-5 md:right-5 md:px-3 md:py-1 md:text-[9px] ${pkg.badgeCls}`}
@@ -436,7 +597,7 @@ export default function Home() {
                 {pkg.num}
               </p>
 
-              {/* Title block */}
+              {/* Title */}
               <div className="mt-1">
                 <div
                   className={`${pkg.accentCls} mb-2.5 w-8 md:mb-3 md:w-10`}
@@ -452,7 +613,7 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Items list */}
+              {/* Items */}
               <ul className="mt-5 flex-1 space-y-2.5 md:mt-7 md:space-y-3">
                 {pkg.items.map((item) => (
                   <li
@@ -465,7 +626,7 @@ export default function Home() {
                 ))}
               </ul>
 
-              {/* CTA — ALL link to Instagram */}
+              {/* CTA */}
               <a
                 href={IG}
                 target="_blank"
@@ -509,13 +670,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           BEFORE/AFTER + MONTHLY PLANS
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <section
         id="packages"
         ref={s_packages.ref as React.RefObject<HTMLElement>}
-        className="border-y border-white/[0.06] bg-[#070710]/50"
+        className="relative border-y border-white/[0.06] bg-[#070710]/50"
       >
         <div className="mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-36">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
@@ -541,7 +702,7 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Monthly Plans */}
+            {/* Monthly plans */}
             <div className={sg(s_packages.vis, "delay-[160ms]")}>
               <p className="text-[9px] uppercase tracking-[0.34em] text-[#9efc3f]/80 md:text-[10px]">
                 Save More
@@ -562,6 +723,10 @@ export default function Home() {
               <div className="mt-6 grid gap-4 md:mt-8 md:gap-5">
                 {/* 1 Month */}
                 <article className="service-card card-neon flex flex-col rounded-2xl border border-white/[0.09] bg-[#0c0c12] p-5 md:p-6">
+                  <div
+                    className="card-shimmer"
+                    style={{ "--shimmer-delay": "0.6s" } as React.CSSProperties}
+                  />
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <p
@@ -586,7 +751,6 @@ export default function Home() {
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      aria-label="Book now on Instagram"
                       className="btn-neon self-start sm:self-auto flex-shrink-0 rounded-full bg-[#9efc3f] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
                       style={{ minHeight: "auto" }}
                     >
@@ -597,6 +761,10 @@ export default function Home() {
 
                 {/* 2 Month */}
                 <article className="service-card card-gold flex flex-col rounded-2xl border border-[#f9b54a]/15 bg-[#0c0c12] p-5 md:p-6">
+                  <div
+                    className="card-shimmer"
+                    style={{ "--shimmer-delay": "1.8s" } as React.CSSProperties}
+                  />
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div className="flex-1">
                       <p
@@ -621,7 +789,6 @@ export default function Home() {
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      aria-label="Book now on Instagram"
                       className="btn-neon self-start sm:self-auto flex-shrink-0 rounded-full bg-[#f9b54a] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
                       style={{ minHeight: "auto" }}
                     >
@@ -635,13 +802,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           GALLERY
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <section
         id="gallery"
         ref={s_gallery.ref as React.RefObject<HTMLElement>}
-        className="mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-36"
+        className="relative mx-auto w-full max-w-7xl px-5 py-16 md:px-10 md:py-36"
       >
         <div className={sg(s_gallery.vis, "delay-75")}>
           <p className="text-[9px] uppercase tracking-[0.34em] text-[#9efc3f]/80 md:text-[10px]">
@@ -663,18 +830,18 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Grid — 2 col mobile, richer on desktop */}
         <div
           className={`${sg(
             s_gallery.vis,
             "delay-150"
-          )} mt-8 grid grid-cols-2 gap-2.5 md:mt-10 md:gap-3 md:grid-cols-2 lg:grid-cols-4`}
-          style={{ gridAutoRows: "clamp(140px, 22vw, 215px)" }}
+          )} mt-8 grid grid-cols-2 gap-2.5 md:mt-10 md:gap-3 lg:grid-cols-4`}
+          style={{ gridAutoRows: "clamp(130px, 22vw, 215px)" }}
         >
           {GALLERY.map(({ src, cs, rs, lbl }, i) => (
             <div
               key={src}
               className={`gallery-item overflow-hidden rounded-xl border border-white/[0.07] ${cs} ${rs}`}
+              style={{ transitionDelay: `${i * 50}ms` }}
             >
               <Image
                 src={src}
@@ -683,9 +850,9 @@ export default function Home() {
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-transform duration-500"
               />
-              {/* Label visible on mobile (always shows), desktop hover only via CSS */}
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2.5 md:p-3">
-                <p className="text-[8px] uppercase tracking-[0.18em] text-white/70 md:text-[9px]">
+              {/* Label — always visible on mobile */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent p-2.5 md:p-3">
+                <p className="text-[8px] uppercase tracking-[0.18em] text-white/75 md:text-[9px]">
                   {lbl}
                 </p>
               </div>
@@ -694,9 +861,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           ABOUT
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <section
         id="about"
         ref={s_about.ref as React.RefObject<HTMLElement>}
@@ -729,7 +896,6 @@ export default function Home() {
                   deserves nothing less.
                 </p>
               </div>
-              {/* Tags — wrap nicely on mobile */}
               <div className="mt-6 flex flex-wrap gap-2 md:mt-8">
                 {[
                   "Paint-safe",
@@ -747,7 +913,6 @@ export default function Home() {
                   </span>
                 ))}
               </div>
-              {/* IG link */}
               <a
                 href={IG}
                 target="_blank"
@@ -766,9 +931,8 @@ export default function Home() {
               </a>
             </div>
 
-            {/* Image — full width on mobile, clipped on desktop */}
             <div className={sg(s_about.vis, "delay-[180ms]")}>
-              <div className="clip-diagonal relative h-[320px] overflow-hidden rounded-2xl border border-white/[0.07] md:h-[480px] lg:h-[560px]">
+              <div className="clip-diagonal relative h-[300px] overflow-hidden rounded-2xl border border-white/[0.07] md:h-[480px] lg:h-[560px]">
                 <Image
                   src="/cars/cullinan_3.jpeg"
                   alt="ProjectX Wash detailing"
@@ -783,9 +947,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
+      {/* ════════════════════════════════════════
           CONTACT CTA
-      ══════════════════════════════════════ */}
+      ════════════════════════════════════════ */}
       <section
         id="contact"
         ref={s_contact.ref as React.RefObject<HTMLElement>}
@@ -797,9 +961,12 @@ export default function Home() {
             "delay-75"
           )} neon-pulse relative overflow-hidden rounded-3xl border border-[#9efc3f]/14 bg-gradient-to-br from-[#0c1208] via-[#080b06] to-[#050509] p-7 md:p-14 lg:p-16`}
         >
-          {/* Glow blobs */}
           <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-[#9efc3f]/[0.055] blur-[70px]" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-[#f9b54a]/[0.04] blur-[60px]" />
+          <div
+            className="card-shimmer"
+            style={{ "--shimmer-delay": "1s" } as React.CSSProperties}
+          />
 
           <div className="relative flex flex-col gap-8 md:flex-row md:items-center md:justify-between md:gap-10">
             <div>
@@ -820,7 +987,6 @@ export default function Home() {
               </p>
             </div>
 
-            {/* CTA buttons — stacked on mobile, side-by-side on sm */}
             <div className="flex flex-col gap-3 sm:flex-row md:flex-col md:min-w-[190px]">
               <a
                 href={IG}
@@ -842,6 +1008,38 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ════════════════════════════════════════
+          FLOATING MOBILE CTA
+          Only shown on mobile after scrolling past hero
+      ════════════════════════════════════════ */}
+      <div
+        className={`fixed bottom-6 left-1/2 z-40 -translate-x-1/2 transition-all duration-500 md:hidden ${
+          showFloat
+            ? "translate-y-0 opacity-100"
+            : "translate-y-16 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="float-cta-wrap relative">
+          <a
+            href={IG}
+            target="_blank"
+            rel="noreferrer"
+            className="float-cta relative flex items-center gap-2.5 rounded-full bg-[#9efc3f] px-6 py-3.5 text-[10px] font-bold uppercase tracking-[0.22em] text-black shadow-[0_8px_24px_rgba(158,252,63,0.4)]"
+            style={{ minHeight: "auto" }}
+          >
+            {/* Instagram icon */}
+            <svg
+              className="h-4 w-4 flex-shrink-0"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+            </svg>
+            Book Now
+          </a>
+        </div>
+      </div>
     </div>
   );
 }
