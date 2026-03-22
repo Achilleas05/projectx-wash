@@ -275,7 +275,7 @@ export default function Home() {
 
           {/* Headline */}
           <h1
-            className={`mt-4 text-[clamp(3.4rem,14vw,8.5rem)] leading-[0.91] tracking-[0.02em] text-white transition-all duration-700 delay-[120ms] md:mt-5 ${
+            className={`mt-4 max-w-[95vw] text-[clamp(2.5rem,13vw,8.5rem)] leading-[0.91] tracking-[0.02em] text-white transition-all duration-700 delay-[120ms] md:mt-5 md:max-w-none md:text-[clamp(3.4rem,14vw,8.5rem)] ${
               hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
             style={D}
@@ -417,7 +417,7 @@ export default function Home() {
                   : i === 1
                   ? "delay-[180ms]"
                   : "delay-[260ms]"
-              )} service-card rounded-2xl border bg-[#0c0c12] p-5 md:p-7 ${
+              )} service-card flex flex-col rounded-2xl border bg-[#0c0c12] p-5 md:p-7 ${
                 pkg.cardCls
               }`}
             >
@@ -453,7 +453,7 @@ export default function Home() {
               </div>
 
               {/* Items list */}
-              <ul className="mt-5 space-y-2.5 md:mt-7 md:space-y-3">
+              <ul className="mt-5 flex-1 space-y-2.5 md:mt-7 md:space-y-3">
                 {pkg.items.map((item) => (
                   <li
                     key={item}
@@ -470,6 +470,7 @@ export default function Home() {
                 href={IG}
                 target="_blank"
                 rel="noreferrer"
+                aria-label="Get a quote on Instagram"
                 className={`btn-neon mt-6 flex w-full items-center justify-center rounded-full py-3 text-[10px] font-bold uppercase tracking-[0.22em] transition-all duration-300 md:mt-8 md:py-3.5 ${pkg.ctaStyle} ${pkg.ctaHover}`}
                 style={{ minHeight: "auto" }}
               >
@@ -560,9 +561,9 @@ export default function Home() {
 
               <div className="mt-6 grid gap-4 md:mt-8 md:gap-5">
                 {/* 1 Month */}
-                <article className="service-card card-neon rounded-2xl border border-white/[0.09] bg-[#0c0c12] p-5 md:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+                <article className="service-card card-neon flex flex-col rounded-2xl border border-white/[0.09] bg-[#0c0c12] p-5 md:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex-1">
                       <p
                         className="text-[1.6rem] tracking-[0.06em] text-white md:text-[1.9rem]"
                         style={D}
@@ -577,7 +578,7 @@ export default function Home() {
                       15% off
                     </span>
                   </div>
-                  <div className="mt-4 flex items-center justify-between gap-3 md:mt-5">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mt-5">
                     <p className="text-[10px] text-slate-600 md:text-[11px]">
                       Pricing varies by vehicle
                     </p>
@@ -585,7 +586,8 @@ export default function Home() {
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      className="btn-neon flex-shrink-0 rounded-full bg-[#9efc3f] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
+                      aria-label="Book now on Instagram"
+                      className="btn-neon self-start sm:self-auto flex-shrink-0 rounded-full bg-[#9efc3f] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
                       style={{ minHeight: "auto" }}
                     >
                       Book Now
@@ -594,9 +596,9 @@ export default function Home() {
                 </article>
 
                 {/* 2 Month */}
-                <article className="service-card card-gold rounded-2xl border border-[#f9b54a]/15 bg-[#0c0c12] p-5 md:p-6">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
+                <article className="service-card card-gold flex flex-col rounded-2xl border border-[#f9b54a]/15 bg-[#0c0c12] p-5 md:p-6">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex-1">
                       <p
                         className="text-[1.6rem] tracking-[0.06em] text-white md:text-[1.9rem]"
                         style={D}
@@ -611,7 +613,7 @@ export default function Home() {
                       30% off
                     </span>
                   </div>
-                  <div className="mt-4 flex items-center justify-between gap-3 md:mt-5">
+                  <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between md:mt-5">
                     <p className="text-[10px] text-slate-600 md:text-[11px]">
                       Pricing varies by vehicle
                     </p>
@@ -619,7 +621,8 @@ export default function Home() {
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      className="btn-neon flex-shrink-0 rounded-full bg-[#f9b54a] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
+                      aria-label="Book now on Instagram"
+                      className="btn-neon self-start sm:self-auto flex-shrink-0 rounded-full bg-[#f9b54a] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black md:text-[10px]"
                       style={{ minHeight: "auto" }}
                     >
                       Book Now
