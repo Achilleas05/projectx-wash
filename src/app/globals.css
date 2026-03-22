@@ -667,7 +667,11 @@ body::before {
   /* Process strip horizontal scroll */
   .process-scroll {
     overflow-x: auto;
+    overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
     scrollbar-width: none;
     padding-bottom: 4px;
   }
@@ -676,6 +680,11 @@ body::before {
   }
   .process-track {
     min-width: max-content;
+    padding-right: 4px;
+  }
+
+  .process-step {
+    scroll-snap-align: start;
   }
 
   /* Slightly reduce blur for performance */
