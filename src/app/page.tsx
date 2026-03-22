@@ -3,19 +3,20 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-/* ─────────────────────────────────────────────────────
-   Reveal hook
-───────────────────────────────────────────────────── */
-function useReveal(threshold = 0.14) {
+/* ── CSS var shorthand ────────────────────────────── */
+const DISPLAY: React.CSSProperties = { fontFamily: "var(--font-display)" };
+
+/* ── Reveal hook ──────────────────────────────────── */
+function useReveal(threshold = 0.12) {
   const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  const [vis, setVis] = useState(false);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => {
         if (e.isIntersecting) {
-          setVisible(true);
+          setVis(true);
           obs.disconnect();
         }
       },
@@ -24,50 +25,51 @@ function useReveal(threshold = 0.14) {
     obs.observe(el);
     return () => obs.disconnect();
   }, [threshold]);
-  return { ref, visible };
+  return { ref, vis };
 }
 
-const sg = (v: boolean, delay: string) =>
-  `transition-all duration-700 ${delay} ${
-    v ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-  }`;
+/* stagger helper */
+const sg = (v: boolean, d: string) =>
+  `reveal-up ${v ? "in" : ""} transition-all duration-700 ${d}`;
 
-const displayFont = { fontFamily: "var(--font-display)" } as const;
-
-/* ─── Data ──────────────────────────────────────────── */
+/* ── Data (from uploaded images) ─────────────────── */
 const STATS = [
-  { value: "500+", label: "Cars Detailed" },
-  { value: "4.9★", label: "Client Rating" },
-  { value: "3", label: "Signature Packages" },
-  { value: "100%", label: "Paint-Safe Methods" },
+  { val: "500+", lbl: "Cars Detailed" },
+  { val: "4.9★", lbl: "Client Rating" },
+  { val: "3", lbl: "Signature Packages" },
+  { val: "100%", lbl: "Paint-Safe Methods" },
 ];
 
-const MARQUEE_ITEMS = [
+const MARQUEE = [
   "Deep Gloss Finish",
-  "Ceramic Coating",
+  "Ceramic Spray Coating",
   "Interior Detailing",
   "Wheel Reconditioning",
-  "Paint Correction",
+  "Exhaust Reconditioning",
+  "Paint-Safe Process",
+  "Leather Reconditioning",
   "Luxury & Performance",
   "Nicosia · Cyprus",
 ];
 
 const PACKAGES = [
   {
-    id: "raw",
+    num: "01",
     title: "RAW",
-    subtitle: "Essential precision",
+    sub: "The essentials, done right",
     badge: "Entry",
-    badgeClass: "bg-white/10 text-white/60",
+    badgeCls: "bg-white/10 text-white/55",
     items: ["Pre-wash", "Interior wash", "Interior vacuum", "Contact wash"],
-    accent: false,
+    cta: false,
+    borderCls: "border-white/[0.09]",
+    hoverCls: "card-neon",
   },
   {
-    id: "elite",
+    num: "02",
     title: "ELITE",
-    subtitle: "Full reconditioning",
-    badge: "Popular",
-    badgeClass: "bg-px-neon/15 text-px-neon",
+    sub: "Full reconditioning",
+    badge: "Most Popular",
+    badgeCls: "bg-[#9efc3f]/15 text-[#9efc3f]",
     items: [
       "Pre-wash",
       "Full wheel reconditioning",
@@ -76,211 +78,277 @@ const PACKAGES = [
       "Full exhaust reconditioning",
       "Interior vacuum",
     ],
-    accent: true,
+    cta: true,
+    borderCls: "border-[#9efc3f]/18 shadow-[0_0_48px_rgba(158,252,63,0.07)]",
+    hoverCls: "card-neon",
   },
   {
-    id: "diamond",
+    num: "03",
     title: "DIAMOND",
-    subtitle: "The complete treatment",
+    sub: "The complete treatment",
     badge: "Premium",
-    badgeClass: "bg-px-gold/15 text-px-gold",
+    badgeCls: "bg-[#f9b54a]/15 text-[#f9b54a]",
     items: [
       "Pre-wash",
       "Full wheel reconditioning",
-      "Floor mats reconditioning",
+      "Full floor mats reconditioning",
       "Interior detailing",
       "Contact wash",
-      "Exhaust reconditioning",
+      "Full exhaust reconditioning",
       "Interior vacuum",
       "Ceramic spray coating",
     ],
-    accent: false,
+    cta: false,
+    borderCls: "border-[#f9b54a]/15",
+    hoverCls: "card-gold",
   },
 ];
 
-const GALLERY: { src: string; colSpan: string; rowSpan: string }[] = [
+const GALLERY = [
   {
     src: "/cars/porsche911gt3.jpeg",
-    colSpan: "col-span-2",
-    rowSpan: "row-span-2",
+    cs: "col-span-2",
+    rs: "row-span-2",
+    lbl: "Porsche 911 GT3",
   },
-  { src: "/cars/audiq8.jpeg", colSpan: "", rowSpan: "" },
-  { src: "/cars/cullinan.jpeg", colSpan: "", rowSpan: "" },
-  { src: "/cars/amggt.jpeg", colSpan: "", rowSpan: "" },
-  { src: "/cars/mercedessl300.jpeg", colSpan: "", rowSpan: "" },
-  { src: "/cars/porsche_carrera.jpeg", colSpan: "col-span-2", rowSpan: "" },
-  { src: "/cars/bmw.jpeg", colSpan: "", rowSpan: "" },
-  { src: "/cars/audiq8_4.jpeg", colSpan: "", rowSpan: "" },
+  { src: "/cars/audiq8.jpeg", cs: "", rs: "", lbl: "Audi Q8" },
+  { src: "/cars/cullinan.jpeg", cs: "", rs: "", lbl: "Rolls-Royce Cullinan" },
+  { src: "/cars/amggt.jpeg", cs: "", rs: "", lbl: "Mercedes AMG GT" },
+  { src: "/cars/mercedessl300.jpeg", cs: "", rs: "", lbl: "Mercedes SL300" },
+  {
+    src: "/cars/porsche_carrera.jpeg",
+    cs: "col-span-2",
+    rs: "",
+    lbl: "Porsche Carrera",
+  },
+  { src: "/cars/bmw.jpeg", cs: "", rs: "", lbl: "BMW" },
+  { src: "/cars/audiq8_4.jpeg", cs: "", rs: "", lbl: "Audi Q8" },
 ];
 
-/* ─── Before / After slider ─────────────────────────── */
-function BeforeAfter({ before, after }: { before: string; after: string }) {
-  const [pct, setPct] = useState(50);
+/* ── Floating particles type ────────────────────── */
+type Particle = {
+  id: number;
+  size: number;
+  left: string;
+  delay: string;
+  dur: string;
+};
+
+/* ── Before / After slider ──────────────────────── */
+function BeforeAfter() {
+  const [pct, setPct] = useState(48);
   return (
-    <div className="ba-slider rounded-2xl" style={{ aspectRatio: "4/3" }}>
-      {/* After (base layer) */}
+    <div
+      className="ba-slider rounded-2xl overflow-hidden border border-white/[0.08]"
+      style={{ aspectRatio: "16/10" }}
+    >
+      {/* After */}
       <Image
-        src={after}
-        alt="After detailing"
+        src="/cars/amggt.jpeg"
+        alt="After"
         fill
+        priority={false}
         sizes="(max-width: 768px) 100vw, 50vw"
         className="object-cover"
       />
-      {/* Before (clipped on top) */}
+      {/* Before clip */}
       <div
         className="absolute inset-0 overflow-hidden"
         style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}
       >
         <Image
-          src={before}
-          alt="Before detailing"
+          src="/cars/amggt_foam.jpeg"
+          alt="Before"
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
         />
       </div>
-      {/* Divider line + handle */}
-      <div className="ba-divider" style={{ left: `${pct}%` }}>
+      {/* Divider */}
+      <div className="ba-line" style={{ left: `${pct}%` }}>
         <div className="ba-handle">⟺</div>
       </div>
       {/* Labels */}
-      <div className="pointer-events-none absolute top-3 left-3 rounded bg-black/50 px-2 py-1 text-[9px] uppercase tracking-[0.22em] text-white/80">
+      <span className="pointer-events-none absolute top-4 left-4 rounded-md bg-black/60 px-2.5 py-1 text-[9px] uppercase tracking-[0.24em] text-white/75 backdrop-blur-sm">
         Before
-      </div>
-      <div className="pointer-events-none absolute top-3 right-3 rounded bg-px-neon/80 px-2 py-1 text-[9px] uppercase tracking-[0.22em] text-black">
+      </span>
+      <span className="pointer-events-none absolute top-4 right-4 rounded-md bg-[#9efc3f] px-2.5 py-1 text-[9px] uppercase tracking-[0.24em] text-black font-bold">
         After
-      </div>
-      {/* Invisible range input covers entire area */}
+      </span>
+      {/* Range */}
       <input
         type="range"
         min={0}
         max={100}
         value={pct}
-        onChange={(e) => setPct(Number(e.target.value))}
+        onChange={(e) => setPct(+e.target.value)}
       />
     </div>
   );
 }
 
-/* ─────────────────────────────────────────────────────
-   Page
-───────────────────────────────────────────────────── */
+/* ════════════════════════════════════════════════════
+   PAGE
+════════════════════════════════════════════════════ */
 export default function Home() {
-  const [heroVis, setHeroVis] = useState(false);
+  /* Hero entrance */
+  const [hv, setHv] = useState(false);
   useEffect(() => {
-    const t = setTimeout(() => setHeroVis(true), 80);
+    const t = setTimeout(() => setHv(true), 60);
     return () => clearTimeout(t);
   }, []);
 
-  const services = useReveal(0.1);
-  const plans = useReveal(0.1);
-  const gallery = useReveal(0.1);
-  const about = useReveal(0.12);
-  const contact = useReveal(0.18);
+  /* Particles — client-only, avoids SSR/hydration mismatch */
+  const [particles, setParticles] = useState<Particle[]>([]);
+  useEffect(() => {
+    setParticles(
+      Array.from({ length: 14 }, (_, i) => ({
+        id: i,
+        size: Math.random() * 3 + 1.5,
+        left: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 8}s`,
+        dur: `${5 + Math.random() * 6}s`,
+      }))
+    );
+  }, []);
+
+  const sec_services = useReveal(0.08);
+  const sec_packages = useReveal(0.08);
+  const sec_gallery = useReveal(0.08);
+  const sec_about = useReveal(0.1);
+  const sec_contact = useReveal(0.15);
 
   return (
     <div className="px-ambient">
-      {/* ════════════════════════════════════════
-          HERO
-      ════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          HERO — Full-bleed cinematic
+      ══════════════════════════════════════════ */}
       <section
         id="home"
         className="relative flex min-h-[100svh] flex-col justify-end overflow-hidden"
       >
-        {/* Full-bleed bg */}
+        {/* Background */}
         <div className="absolute inset-0 z-0">
           <Image
             src="/cars/porsche911gt3_2.jpeg"
-            alt="ProjectX Wash hero car"
+            alt="ProjectX Wash hero"
             fill
             priority
             sizes="100vw"
-            className={`object-cover transition-transform duration-[2.4s] ease-out ${
-              heroVis ? "scale-100" : "scale-105"
+            className={`object-cover transition-transform ${
+              hv ? "hero-img-enter" : "scale-[1.06]"
             }`}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-[#050509]/60 to-[#050509]/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#050509]/80 via-transparent to-transparent" />
+          {/* Layered overlays */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#050509] via-[#050509]/58 to-[#050509]/15" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#050509]/85 via-[#050509]/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050509]/30 via-transparent to-transparent" />
+          {/* Spotlight sweep */}
+          <div className="spotlight-sweep" />
+        </div>
+
+        {/* Floating particles */}
+        <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden">
+          {particles.map((p) => (
+            <span
+              key={p.id}
+              className="particle"
+              style={
+                {
+                  width: p.size,
+                  height: p.size,
+                  left: p.left,
+                  bottom: "5%",
+                  "--delay": p.delay,
+                  "--dur": p.dur,
+                } as React.CSSProperties
+              }
+            />
+          ))}
         </div>
 
         {/* Content */}
-        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-20 pt-32 md:px-10 md:pb-28">
-          <div className="max-w-2xl">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-5 pb-24 pt-36 md:px-10 md:pb-32">
+          <div className="max-w-[700px]">
+            {/* Eyebrow */}
             <div
-              className={`${sg(
-                heroVis,
-                "delay-75"
-              )} mb-5 flex items-center gap-3`}
+              className={`flex items-center gap-3 transition-all duration-700 delay-75 ${
+                hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+              }`}
             >
-              <div className="h-px w-10 bg-px-neon/80 shadow-[0_0_10px_rgba(158,252,63,0.5)]" />
-              <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/90">
+              <div className="h-px w-12 bg-[#9efc3f] shadow-[0_0_12px_rgba(158,252,63,0.6)]" />
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/90">
                 Premium Car Detailing · Nicosia, Cyprus
               </p>
             </div>
 
+            {/* Headline */}
             <h1
-              className={`${sg(
-                heroVis,
-                "delay-100"
-              )} text-[clamp(4rem,12vw,8.5rem)] leading-[0.93] tracking-[0.02em] text-white`}
-              style={displayFont}
+              className={`mt-5 text-[clamp(3.8rem,11vw,8.5rem)] leading-[0.92] tracking-[0.02em] text-white transition-all duration-700 delay-[120ms] ${
+                hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
+              }`}
+              style={DISPLAY}
             >
               Obsessive
               <br />
-              <span className="text-px-neon">Detailing</span>
+              <span className="text-[#9efc3f]">Detailing.</span>
               <br />
-              Precision
+              Precision.
             </h1>
 
+            {/* Body */}
             <p
-              className={`${sg(
-                heroVis,
-                "delay-200"
-              )} mt-7 max-w-md text-base leading-7 text-slate-300/90`}
+              className={`mt-6 max-w-[460px] text-[15px] leading-[1.85] text-slate-300/85 transition-all duration-700 delay-200 ${
+                hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              }`}
             >
-              Deep-gloss finishes, precision interior work, and a clean process
-              engineered for performance and luxury vehicles.
+              Deep-gloss finishes, precision interior work, and a controlled
+              process engineered for performance and luxury vehicles.
             </p>
 
+            {/* CTAs */}
             <div
-              className={`${sg(
-                heroVis,
-                "delay-300"
-              )} mt-9 flex flex-wrap gap-3`}
+              className={`mt-8 flex flex-wrap items-center gap-3 transition-all duration-700 delay-300 ${
+                hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              }`}
             >
               <a
-                href="https://www.instagram.com/projectx.wash.cy"
+                href="https://www.instagram.com/projectx.wash.cy/"
                 target="_blank"
                 rel="noreferrer"
-                className="btn-neon rounded-full bg-px-neon px-7 py-3.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-black"
+                className="btn-neon rounded-full bg-[#9efc3f] px-7 py-3.5 text-[11px] font-bold uppercase tracking-[0.2em] text-black"
               >
                 Book via Instagram
               </a>
+              {/* THIS IS THE FIX — explicit visible styles */}
               <a
                 href="#services"
-                className="rounded-full border border-white/20 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.18em] text-slate-300 transition-all duration-300 hover:border-px-gold/40 hover:text-px-gold"
+                className="btn-outline rounded-full border border-white/30 px-7 py-3.5 text-[11px] font-medium uppercase tracking-[0.2em] text-white hover:border-[#f9b54a]/50 hover:text-[#f9b54a]"
               >
                 View Packages
               </a>
             </div>
 
-            {/* Stats row */}
+            {/* Stats */}
             <div
-              className={`${sg(
-                heroVis,
-                "delay-[400ms]"
-              )} mt-14 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4`}
+              className={`mt-14 grid grid-cols-2 gap-x-10 gap-y-5 sm:grid-cols-4 transition-all duration-700 delay-[420ms] ${
+                hv ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
+              }`}
             >
-              {STATS.map((s) => (
-                <div key={s.label}>
+              {STATS.map((s, i) => (
+                <div
+                  key={s.lbl}
+                  className={`tick-in`}
+                  style={{ animationDelay: `${0.55 + i * 0.1}s` }}
+                >
                   <p
-                    className="text-3xl tracking-wider text-white"
-                    style={displayFont}
+                    className="text-[2.1rem] leading-none text-white"
+                    style={DISPLAY}
                   >
-                    {s.value}
+                    {s.val}
                   </p>
-                  <p className="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                    {s.label}
+                  <p className="mt-1 text-[9px] uppercase tracking-[0.24em] text-slate-500">
+                    {s.lbl}
                   </p>
                 </div>
               ))}
@@ -290,232 +358,274 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div
-          className={`${sg(
-            heroVis,
-            "delay-[500ms]"
-          )} absolute bottom-7 right-8 z-10 flex flex-col items-center gap-2`}
+          className={`absolute bottom-8 right-10 z-10 flex flex-col items-center gap-2 transition-all duration-700 delay-[600ms] ${
+            hv ? "opacity-100" : "opacity-0"
+          }`}
         >
-          <div className="h-12 w-px bg-gradient-to-b from-transparent to-px-neon/60" />
-          <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500">
+          <div className="scroll-bounce h-11 w-px bg-gradient-to-b from-transparent via-[#9efc3f]/50 to-[#9efc3f]/80" />
+          <p className="text-[8px] uppercase tracking-[0.34em] text-slate-600">
             Scroll
           </p>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
+      {/* ══════════════════════════════════════════
           MARQUEE TICKER
-      ════════════════════════════════════════ */}
-      <div className="relative overflow-hidden border-y border-white/[0.06] bg-px-card/60 py-4">
-        <div className="marquee-track flex w-max gap-0">
-          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, i) => (
-            <div key={i} className="flex shrink-0 items-center gap-7 px-7">
-              <span className="text-[11px] uppercase tracking-[0.3em] text-slate-400">
+      ══════════════════════════════════════════ */}
+      <div className="relative overflow-hidden border-y border-white/[0.06] bg-[#0a0a10]/70 py-[14px] backdrop-blur-sm">
+        <div className="marquee-track flex w-max">
+          {[...MARQUEE, ...MARQUEE].map((item, i) => (
+            <div key={i} className="flex shrink-0 items-center gap-8 px-8">
+              <span className="text-[10px] uppercase tracking-[0.32em] text-slate-400">
                 {item}
               </span>
-              <span className="h-1 w-1 rounded-full bg-px-neon/50" />
+              <span className="h-1 w-1 rounded-full bg-[#9efc3f]/45 flex-shrink-0" />
             </div>
           ))}
         </div>
       </div>
 
-      {/* ════════════════════════════════════════
-          SERVICES
-      ════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          SERVICES — Packages
+      ══════════════════════════════════════════ */}
       <section
         id="services"
-        ref={services.ref as React.RefObject<HTMLElement>}
-        className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32"
+        ref={sec_services.ref as React.RefObject<HTMLElement>}
+        className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-36"
       >
-        <div className={sg(services.visible, "delay-75")}>
-          <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+        {/* Section header */}
+        <div className={sg(sec_services.vis, "delay-75")}>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
             Services & Packages
           </p>
-          <div className="mt-3 flex items-end justify-between gap-4">
+          <div className="mt-3 flex flex-wrap items-end gap-6">
             <h2
-              className="text-[clamp(2.8rem,7vw,5.5rem)] leading-none tracking-[0.03em] text-white"
-              style={displayFont}
+              className="text-[clamp(3rem,8vw,6rem)] leading-[0.9] tracking-[0.03em] text-white"
+              style={DISPLAY}
             >
               SIGNATURE
               <br />
               LINEUP
             </h2>
-            <div className="neon-rule mb-3 hidden h-px flex-1 max-w-[200px] sm:block" />
+            <div className="mb-2 hidden flex-1 md:block">
+              <div className="neon-rule" />
+            </div>
           </div>
+          <p className="mt-4 max-w-lg text-sm leading-7 text-slate-400">
+            Every package uses paint-safe methods and premium products. Choose
+            the level of care that matches your vehicle.
+          </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
+        {/* Cards */}
+        <div className="mt-14 grid gap-5 lg:grid-cols-3">
           {PACKAGES.map((pkg, i) => (
             <article
-              key={pkg.id}
+              key={pkg.num}
               className={`${sg(
-                services.visible,
-                i === 0 ? "delay-100" : i === 1 ? "delay-200" : "delay-300"
-              )} service-card rounded-2xl border bg-px-card p-7 ${
-                pkg.accent
-                  ? "border-px-neon/20 shadow-[0_0_40px_rgba(158,252,63,0.07)]"
-                  : "border-white/[0.08]"
-              }`}
+                sec_services.vis,
+                i === 0
+                  ? "delay-[120ms]"
+                  : i === 1
+                  ? "delay-200"
+                  : "delay-[280ms]"
+              )} service-card ${
+                pkg.hoverCls
+              } rounded-2xl border bg-[#0c0c12] p-7 ${pkg.borderCls}`}
             >
-              <span className={`service-card-badge ${pkg.badgeClass}`}>
+              {/* Badge */}
+              <span
+                className={`absolute top-5 right-5 rounded-full px-3 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] ${pkg.badgeCls}`}
+              >
                 {pkg.badge}
               </span>
-              <p className="text-6xl text-white/10" style={displayFont}>
-                0{i + 1}
+              {/* Ghost number */}
+              <p
+                className="text-[4.5rem] leading-none text-white/[0.07] select-none"
+                style={DISPLAY}
+              >
+                {pkg.num}
               </p>
-              <div className="mt-2">
-                <div className="neon-rule mb-3 w-10" />
+              {/* Title */}
+              <div className="mt-1">
+                <div
+                  className={`${i === 2 ? "gold-rule" : "neon-rule"} mb-3 w-10`}
+                />
                 <h3
-                  className="text-4xl tracking-[0.06em] text-white"
-                  style={displayFont}
+                  className="text-[2.6rem] tracking-[0.06em] text-white"
+                  style={DISPLAY}
                 >
                   {pkg.title}
                 </h3>
-                <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                  {pkg.subtitle}
+                <p className="mt-0.5 text-[10px] uppercase tracking-[0.22em] text-slate-500">
+                  {pkg.sub}
                 </p>
               </div>
+              {/* Items */}
               <ul className="mt-7 space-y-3">
                 {pkg.items.map((item) => (
                   <li
                     key={item}
-                    className="flex items-center gap-3 text-[14px] text-slate-300"
+                    className="flex items-start gap-3 text-[13.5px] text-slate-300"
                   >
-                    <span className="h-1.5 w-1.5 flex-shrink-0 rounded-full bg-px-neon/70" />
+                    <span className="mt-[6px] h-[6px] w-[6px] flex-shrink-0 rounded-full bg-[#9efc3f]/65" />
                     {item}
                   </li>
                 ))}
               </ul>
+              {/* CTA */}
               <a
-                href="https://www.instagram.com/projectx.wash.cy"
+                href="https://www.instagram.com/projectx.wash.cy/"
                 target="_blank"
                 rel="noreferrer"
-                className={`mt-8 block w-full rounded-full py-3 text-center text-[11px] font-semibold uppercase tracking-[0.18em] transition-all duration-300 ${
-                  pkg.accent
-                    ? "bg-px-neon text-black hover:shadow-[0_0_20px_rgba(158,252,63,0.5)]"
-                    : "border border-white/15 text-slate-300 hover:border-px-neon/30 hover:text-px-neon"
+                className={`mt-8 block w-full rounded-full py-3.5 text-center text-[10px] font-bold uppercase tracking-[0.22em] transition-all duration-300 ${
+                  pkg.cta
+                    ? "btn-neon bg-[#9efc3f] text-black"
+                    : "btn-outline border border-white/15 text-slate-300 hover:border-[#9efc3f]/35 hover:text-[#9efc3f]"
                 }`}
               >
-                Get Quote
+                Get a Quote
               </a>
             </article>
           ))}
         </div>
 
+        {/* Extra services */}
         <div
           className={`${sg(
-            services.visible,
-            "delay-[400ms]"
-          )} mt-6 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/[0.07] bg-black/30 px-6 py-5`}
+            sec_services.vis,
+            "delay-[360ms]"
+          )} mt-5 flex flex-wrap items-center justify-between gap-5 rounded-2xl border border-white/[0.07] bg-black/35 px-7 py-6`}
         >
           <div>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-px-neon/80">
-              Add-on Services
+            <p className="text-[10px] uppercase tracking-[0.32em] text-[#9efc3f]/75">
+              Extra Services
             </p>
-            <p className="mt-1.5 text-sm text-slate-300">
+            <p className="mt-2 text-[14px] text-slate-300">
               Leather reconditioning &nbsp;·&nbsp; Fabric reconditioning
             </p>
           </div>
           <p className="text-[11px] text-slate-500">
-            Pricing varies by vehicle — DM for a quote
+            Prices vary by vehicle size &amp; condition — DM for details
           </p>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          BEFORE / AFTER + MONTHLY PLANS
-      ════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          PACKAGES — Before/After + Monthly plans
+      ══════════════════════════════════════════ */}
       <section
         id="packages"
-        ref={plans.ref as React.RefObject<HTMLElement>}
-        className="border-y border-white/[0.06] bg-px-card/40"
+        ref={sec_packages.ref as React.RefObject<HTMLElement>}
+        className="border-y border-white/[0.06] bg-[#070710]/50"
       >
-        <div className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-            {/* Before / After */}
-            <div className={sg(plans.visible, "delay-100")}>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+        <div className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-36">
+          <div className="grid gap-14 lg:grid-cols-2 lg:gap-20">
+            {/* ── Before / After ── */}
+            <div className={sg(sec_packages.vis, "delay-75")}>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
                 The Proof
               </p>
               <h2
-                className="mt-2 text-[clamp(2.4rem,6vw,4.5rem)] leading-none tracking-[0.03em] text-white"
-                style={displayFont}
+                className="mt-2 text-[clamp(2.6rem,6vw,4.8rem)] leading-[0.92] tracking-[0.03em] text-white"
+                style={DISPLAY}
               >
                 BEFORE
                 <br />
                 &amp; AFTER
               </h2>
-              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-                Drag the slider to see the difference a ProjectX detail makes.
+              <p className="mt-4 max-w-sm text-sm leading-[1.85] text-slate-400">
+                Drag the handle to reveal the difference. Every ProjectX detail
+                is a showroom-grade transformation.
               </p>
               <div className="mt-8">
-                <BeforeAfter
-                  before="/cars/amggt_foam.jpeg"
-                  after="/cars/amggt.jpeg"
-                />
+                <BeforeAfter />
               </div>
             </div>
 
-            {/* Monthly plans */}
-            <div className={sg(plans.visible, "delay-200")}>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+            {/* ── Monthly Plans ── */}
+            <div className={sg(sec_packages.vis, "delay-200")}>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
                 Save More
               </p>
               <h2
-                className="mt-2 text-[clamp(2.4rem,6vw,4.5rem)] leading-none tracking-[0.03em] text-white"
-                style={displayFont}
+                className="mt-2 text-[clamp(2.6rem,6vw,4.8rem)] leading-[0.92] tracking-[0.03em] text-white"
+                style={DISPLAY}
               >
                 MONTHLY
                 <br />
                 PLANS
               </h2>
-              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-                Keep your car immaculate year-round with a scheduled maintenance
-                plan.
+              <p className="mt-4 max-w-sm text-sm leading-[1.85] text-slate-400">
+                Keep your car in showroom condition with a scheduled maintenance
+                plan. Exclusive discounts for recurring clients.
               </p>
 
               <div className="mt-8 grid gap-5">
-                <article className="service-card rounded-2xl border border-white/[0.08] bg-px-card p-6">
-                  <div className="flex items-start justify-between">
+                {/* 1 Month */}
+                <article className="service-card card-neon group rounded-2xl border border-white/[0.08] bg-[#0c0c12] p-6">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
                       <p
-                        className="text-2xl tracking-[0.08em] text-white"
-                        style={displayFont}
+                        className="text-[1.9rem] tracking-[0.06em] text-white"
+                        style={DISPLAY}
                       >
                         1 MONTH PLAN
                       </p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                        1 Elite + 3 Raw washes
+                      <p className="mt-1.5 text-[12px] text-slate-400">
+                        1 Elite Wash &amp; 3 Raw Washes
                       </p>
                     </div>
-                    <span className="rounded-full bg-px-neon/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-px-neon">
+                    <span className="flex-shrink-0 rounded-full bg-[#9efc3f]/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#9efc3f]">
                       15% off
                     </span>
                   </div>
-                  <p className="mt-4 text-[12px] text-slate-600">
-                    Pricing based on vehicle size — DM to book
-                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3">
+                    <p className="text-[11px] text-slate-600">
+                      Pricing varies by vehicle — DM to book
+                    </p>
+                    <a
+                      href="https://www.instagram.com/projectx.wash.cy/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-outline rounded-full border border-white/15 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-slate-400 hover:border-[#9efc3f]/35 hover:text-[#9efc3f] whitespace-nowrap"
+                    >
+                      Book Now
+                    </a>
+                  </div>
                 </article>
 
-                <article className="service-card rounded-2xl border border-px-gold/15 bg-px-card p-6">
-                  <div className="flex items-start justify-between">
+                {/* 2 Month */}
+                <article className="service-card card-gold group rounded-2xl border border-[#f9b54a]/15 bg-[#0c0c12] p-6">
+                  <div className="flex items-start justify-between gap-3">
                     <div>
                       <p
-                        className="text-2xl tracking-[0.08em] text-white"
-                        style={displayFont}
+                        className="text-[1.9rem] tracking-[0.06em] text-white"
+                        style={DISPLAY}
                       >
                         2 MONTH PLAN
                       </p>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.2em] text-slate-500">
-                        1 Diamond + 2 Elite + 3 Raw washes
+                      <p className="mt-1.5 text-[12px] text-slate-400">
+                        1 Diamond Wash, 2 Elite Washes &amp; 3 Raw Washes
                       </p>
                     </div>
-                    <span className="rounded-full bg-px-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-px-gold">
+                    <span className="flex-shrink-0 rounded-full bg-[#f9b54a]/15 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-[#f9b54a]">
                       30% off
                     </span>
                   </div>
-                  <p className="mt-4 text-[12px] text-slate-600">
-                    Pricing based on vehicle size — DM to book
-                  </p>
+                  <div className="mt-5 flex items-center justify-between gap-3">
+                    <p className="text-[11px] text-slate-600">
+                      Pricing varies by vehicle — DM to book
+                    </p>
+                    <a
+                      href="https://www.instagram.com/projectx.wash.cy/"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn-outline rounded-full border border-[#f9b54a]/20 px-4 py-2 text-[10px] uppercase tracking-[0.18em] text-[#f9b54a]/70 hover:border-[#f9b54a]/50 hover:text-[#f9b54a] whitespace-nowrap"
+                    >
+                      Book Now
+                    </a>
+                  </div>
                 </article>
               </div>
             </div>
@@ -523,164 +633,202 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
+      {/* ══════════════════════════════════════════
           GALLERY
-      ════════════════════════════════════════ */}
+      ══════════════════════════════════════════ */}
       <section
         id="gallery"
-        ref={gallery.ref as React.RefObject<HTMLElement>}
-        className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32"
+        ref={sec_gallery.ref as React.RefObject<HTMLElement>}
+        className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-36"
       >
-        <div className={sg(gallery.visible, "delay-75")}>
-          <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+        <div className={sg(sec_gallery.vis, "delay-75")}>
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
             Gallery
           </p>
-          <h2
-            className="mt-2 text-[clamp(2.8rem,7vw,5.5rem)] leading-none tracking-[0.03em] text-white"
-            style={displayFont}
-          >
-            REAL RESULTS
-          </h2>
+          <div className="mt-2 flex flex-wrap items-end gap-6">
+            <h2
+              className="text-[clamp(3rem,8vw,6rem)] leading-[0.9] tracking-[0.03em] text-white"
+              style={DISPLAY}
+            >
+              REAL RESULTS
+            </h2>
+            <div className="mb-1 hidden flex-1 md:block">
+              <div className="neon-rule" />
+            </div>
+          </div>
+          <p className="mt-3 text-sm text-slate-500">
+            Every car you see was detailed by ProjectX Wash in Nicosia.
+          </p>
         </div>
 
         <div
           className={`${sg(
-            gallery.visible,
+            sec_gallery.vis,
             "delay-150"
           )} mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4`}
-          style={{ gridAutoRows: "220px" }}
+          style={{ gridAutoRows: "215px" }}
         >
-          {GALLERY.map(({ src, colSpan, rowSpan }, i) => (
+          {GALLERY.map(({ src, cs, rs, lbl }, i) => (
             <div
               key={src}
-              className={`gallery-item rounded-xl border border-white/[0.07] ${colSpan} ${rowSpan}`}
+              className={`gallery-item rounded-xl border border-white/[0.07] ${cs} ${rs}`}
             >
               <Image
                 src={src}
-                alt={`ProjectX Wash result ${i + 1}`}
+                alt={lbl}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover transition-transform duration-500"
               />
+              {/* Label on hover (via ::after overlay + absolute text) */}
+              <div className="absolute bottom-0 left-0 right-0 z-10 translate-y-1 p-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/80">
+                  {lbl}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
+      {/* ══════════════════════════════════════════
           ABOUT
-      ════════════════════════════════════════ */}
+      ══════════════════════════════════════════ */}
       <section
         id="about"
-        ref={about.ref as React.RefObject<HTMLElement>}
-        className="border-t border-white/[0.06] bg-px-card/30"
+        ref={sec_about.ref as React.RefObject<HTMLElement>}
+        className="border-t border-white/[0.06] bg-[#060609]/60"
       >
-        <div className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32">
-          <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-20">
-            <div className={sg(about.visible, "delay-75")}>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+        <div className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-36">
+          <div className="grid gap-14 lg:grid-cols-[1.15fr_0.85fr] lg:gap-20">
+            <div className={sg(sec_about.vis, "delay-75")}>
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
                 About ProjectX
               </p>
               <h2
                 className="mt-3 text-[clamp(3rem,8vw,6rem)] leading-[0.9] tracking-[0.03em] text-white"
-                style={displayFont}
+                style={DISPLAY}
               >
                 THE ART
                 <br />
                 OF CLEAN
               </h2>
-              <div className="mt-6 space-y-5 text-base leading-8 text-slate-400">
+              <div className="mt-7 space-y-5 text-[15px] leading-[1.9] text-slate-400">
                 <p>
-                  We focus exclusively on performance and luxury vehicles, using
-                  paint-safe decontamination methods and meticulous interior
-                  work to deliver a cleaner, richer finish every visit.
+                  We focus exclusively on performance and luxury vehicles —
+                  using paint-safe decontamination methods and meticulous
+                  interior work to deliver a cleaner, richer finish every single
+                  visit.
                 </p>
                 <p>
-                  Our process is controlled and consistent. Premium products,
-                  precision application, and zero compromise — because your car
+                  The process is controlled and consistent. Premium products,
+                  precision application, zero compromise. Because your car
                   deserves nothing less.
                 </p>
               </div>
+              {/* Tags */}
               <div className="mt-8 flex flex-wrap gap-2">
                 {[
                   "Paint-safe methods",
                   "Premium products",
-                  "Luxury & performance",
+                  "Wheel reconditioning",
+                  "Ceramic coating",
+                  "Exhaust detailing",
                   "Nicosia based",
-                ].map((f) => (
+                ].map((t) => (
                   <span
-                    key={f}
-                    className="rounded-full border border-white/[0.1] px-4 py-1.5 text-[11px] uppercase tracking-[0.18em] text-slate-400"
+                    key={t}
+                    className="rounded-full border border-white/10 px-4 py-1.5 text-[10px] uppercase tracking-[0.2em] text-slate-500"
                   >
-                    {f}
+                    {t}
                   </span>
                 ))}
               </div>
+              {/* IG link */}
+              <a
+                href="https://www.instagram.com/projectx.wash.cy/"
+                target="_blank"
+                rel="noreferrer"
+                className="mt-8 inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.24em] text-slate-500 link-neon"
+              >
+                <svg
+                  className="h-3.5 w-3.5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                </svg>
+                @projectx.wash.cy
+              </a>
             </div>
 
-            <div className={sg(about.visible, "delay-200")}>
-              <div className="hero-image-wrap relative h-[420px] overflow-hidden rounded-2xl border border-white/[0.08] md:h-[520px]">
+            {/* Image */}
+            <div className={sg(sec_about.vis, "delay-200")}>
+              <div className="clip-diagonal relative h-[440px] overflow-hidden rounded-2xl border border-white/[0.07] md:h-[560px]">
                 <Image
                   src="/cars/cullinan_3.jpeg"
-                  alt="Detailing close-up"
+                  alt="ProjectX Wash detailing"
                   fill
-                  sizes="(max-width: 1024px) 100vw, 45vw"
+                  sizes="(max-width: 1024px) 100vw, 42vw"
                   className="object-cover transition-transform duration-700 hover:scale-[1.04]"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════════════════
-          CONTACT / CTA
-      ════════════════════════════════════════ */}
+      {/* ══════════════════════════════════════════
+          CONTACT CTA
+      ══════════════════════════════════════════ */}
       <section
         id="contact"
-        ref={contact.ref as React.RefObject<HTMLElement>}
+        ref={sec_contact.ref as React.RefObject<HTMLElement>}
         className="mx-auto w-full max-w-7xl px-5 py-24 md:px-10 md:py-32"
       >
         <div
           className={`${sg(
-            contact.visible,
-            "delay-100"
-          )} neon-pulse-border relative overflow-hidden rounded-3xl border border-px-neon/15 bg-gradient-to-br from-[#0d1308] via-[#090c09] to-[#050509] p-10 md:p-16`}
+            sec_contact.vis,
+            "delay-75"
+          )} neon-pulse relative overflow-hidden rounded-3xl border border-[#9efc3f]/14 bg-gradient-to-br from-[#0c1208] via-[#080b06] to-[#050509] p-10 md:p-16`}
         >
-          <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-px-neon/[0.06] blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-px-gold/[0.04] blur-3xl" />
+          {/* Glow blobs */}
+          <div className="pointer-events-none absolute -top-28 -right-28 h-72 w-72 rounded-full bg-[#9efc3f]/[0.055] blur-[80px]" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-64 w-64 rounded-full bg-[#f9b54a]/[0.04] blur-[70px]" />
+          <div className="pointer-events-none absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#9efc3f]/[0.02] blur-[100px]" />
 
-          <div className="relative flex flex-col items-start justify-between gap-8 md:flex-row md:items-center">
+          <div className="relative flex flex-col items-start justify-between gap-10 md:flex-row md:items-center">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.3em] text-px-neon/80">
+              <p className="text-[10px] uppercase tracking-[0.35em] text-[#9efc3f]/80">
                 Instagram · @projectx.wash.cy
               </p>
               <h3
-                className="mt-3 text-[clamp(2.5rem,7vw,5rem)] leading-none tracking-[0.03em] text-white"
-                style={displayFont}
+                className="mt-3 text-[clamp(2.8rem,7vw,5.5rem)] leading-[0.92] tracking-[0.03em] text-white"
+                style={DISPLAY}
               >
                 BOOK YOUR
                 <br />
-                <span className="text-px-neon">DETAIL TODAY</span>
+                <span className="text-[#9efc3f]">DETAIL TODAY</span>
               </h3>
-              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-400">
-                Reach out on Instagram to get a custom quote based on your
-                vehicle. Limited slots available each week.
+              <p className="mt-4 max-w-sm text-[14px] leading-[1.85] text-slate-400">
+                Send a DM on Instagram for a custom quote based on your vehicle.
+                Limited slots available each week — book early.
               </p>
             </div>
 
-            <div className="flex flex-col gap-3 sm:flex-row md:flex-col">
+            <div className="flex flex-col gap-3 sm:flex-row md:flex-col md:min-w-[200px]">
               <a
-                href="https://www.instagram.com/projectx.wash.cy"
+                href="https://www.instagram.com/projectx.wash.cy/"
                 target="_blank"
                 rel="noreferrer"
-                className="btn-neon rounded-full bg-px-neon px-8 py-4 text-center text-[11px] font-bold uppercase tracking-[0.2em] text-black"
+                className="btn-neon rounded-full bg-[#9efc3f] px-8 py-4 text-center text-[11px] font-bold uppercase tracking-[0.22em] text-black"
               >
                 DM on Instagram
               </a>
               <a
                 href="#services"
-                className="rounded-full border border-white/15 px-8 py-4 text-center text-[11px] font-medium uppercase tracking-[0.18em] text-slate-400 transition-all duration-300 hover:border-px-gold/30 hover:text-px-gold"
+                className="btn-outline rounded-full border border-white/15 px-8 py-4 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-slate-400 hover:border-[#f9b54a]/40 hover:text-[#f9b54a]"
               >
                 View Packages
               </a>
