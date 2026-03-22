@@ -65,8 +65,8 @@ export default function RootLayout({
             <div className="h-px w-full bg-gradient-to-r from-transparent via-[#9efc3f]/25 to-transparent" />
 
             {/* Main grid */}
-            <div className="mx-auto w-full max-w-7xl px-5 pt-12 pb-8 md:px-10 md:pt-16 md:pb-10">
-              <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mx-auto w-full max-w-7xl px-5 pt-8 pb-6 md:px-10 md:pt-16 md:pb-10">
+              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
                 {/* ── Brand ── */}
                 <div className="sm:col-span-2 lg:col-span-1">
                   <div className="flex items-center gap-3">
@@ -78,18 +78,18 @@ export default function RootLayout({
                       className="rounded-full object-cover"
                     />
                     <span
-                      className="text-[21px] tracking-[0.18em] text-white"
+                      className="text-[18px] tracking-[0.12em] text-white md:text-[21px] md:tracking-[0.18em]"
                       style={D}
                     >
                       PROJECTX
                     </span>
                   </div>
-                  <p className="mt-4 max-w-[260px] text-[12px] leading-[1.75] text-slate-500">
+                  <p className="mt-3 max-w-[260px] text-[11px] leading-[1.6] text-slate-500 md:mt-4 md:text-[12px] md:leading-[1.75]">
                     Premium car detailing in Nicosia, Cyprus. Obsessive
                     precision for performance and luxury vehicles.
                   </p>
                   {/* Location pill */}
-                  <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-3.5 py-2 text-[10px] uppercase tracking-[0.2em] text-slate-500">
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-slate-500 md:mt-5 md:px-3.5 md:py-2 md:text-[10px] md:tracking-[0.2em]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#9efc3f]/60" />
                     Nicosia, Cyprus
                   </div>
@@ -99,7 +99,7 @@ export default function RootLayout({
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2.5 rounded-full border border-white/10 px-3.5 py-2 text-[10px] uppercase tracking-[0.2em] text-slate-400 transition-all duration-200 hover:border-[#9efc3f]/30 hover:text-[#9efc3f]"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-slate-400 transition-all duration-200 hover:border-[#9efc3f]/30 hover:text-[#9efc3f] md:gap-2.5 md:px-3.5 md:py-2 md:text-[10px] md:tracking-[0.2em]"
                     >
                       <svg
                         className="h-3 w-3 flex-shrink-0"
@@ -114,7 +114,7 @@ export default function RootLayout({
                 </div>
 
                 {/* ── Navigation ── */}
-                <div>
+                <div className="hidden sm:block">
                   <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Navigation
                   </p>
@@ -134,7 +134,7 @@ export default function RootLayout({
                 </div>
 
                 {/* ── Services ── */}
-                <div>
+                <div className="hidden md:block">
                   <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Services
                   </p>
@@ -158,7 +158,7 @@ export default function RootLayout({
                   <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Book Now
                   </p>
-                  <p className="text-[12px] leading-[1.75] text-slate-500">
+                  <p className="text-[11px] leading-[1.6] text-slate-500 md:text-[12px] md:leading-[1.75]">
                     DM on Instagram for a quote tailored to your vehicle.
                     Limited weekly slots available.
                   </p>
@@ -166,12 +166,12 @@ export default function RootLayout({
                     href={IG}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn-neon mt-5 flex w-full items-center justify-center rounded-full bg-[#9efc3f] py-3.5 text-[10px] font-bold uppercase tracking-[0.22em] text-black"
+                    className="btn-neon mt-4 flex w-full items-center justify-center rounded-full bg-[#9efc3f] py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-black md:mt-5 md:py-3.5 md:tracking-[0.22em]"
                   >
                     DM on Instagram
                   </a>
                   {/* Trust signals */}
-                  <div className="mt-6 space-y-2.5">
+                  <div className="mt-5 hidden space-y-2.5 md:block md:mt-6">
                     {[
                       "Paint-safe methods only",
                       "Performance & luxury vehicles",
@@ -192,12 +192,12 @@ export default function RootLayout({
 
             {/* Bottom bar */}
             <div className="border-t border-white/[0.05]">
-              <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-2 px-5 py-5 sm:flex-row sm:items-center md:px-10">
-                <span className="text-[10px] uppercase tracking-[0.16em] text-slate-700">
+              <div className="mx-auto flex w-full max-w-7xl flex-col items-start justify-between gap-1.5 px-5 py-4 sm:flex-row sm:items-center md:px-10 md:py-5">
+                <span className="text-[9px] uppercase tracking-[0.12em] text-slate-700 md:text-[10px] md:tracking-[0.16em]">
                   © {new Date().getFullYear()} ProjectX Wash · All rights
                   reserved
                 </span>
-                <span className="text-[10px] uppercase tracking-[0.16em] text-slate-700">
+                <span className="text-[9px] uppercase tracking-[0.12em] text-slate-700 md:text-[10px] md:tracking-[0.16em]">
                   Nicosia, Cyprus · Premium Car Detailing
                 </span>
               </div>
