@@ -10,7 +10,6 @@ const bebasNeue = Bebas_Neue({
   variable: "--font-display",
   display: "swap",
 });
-
 const dmSans = DM_Sans({
   subsets: ["latin"],
   variable: "--font-body",
@@ -25,7 +24,6 @@ export const metadata: Metadata = {
 
 const IG = "https://www.instagram.com/projectx.wash.cy/";
 const D = { fontFamily: "var(--font-display)" };
-
 const NAV = [
   "home",
   "services",
@@ -34,7 +32,7 @@ const NAV = [
   "about",
   "contact",
 ] as const;
-const SERVICES = [
+const SVCS = [
   "Raw Package",
   "Elite Package",
   "Diamond Package",
@@ -56,18 +54,16 @@ export default function RootLayout({
       >
         <div className="flex min-h-screen flex-col">
           <Header />
-
           <main className="flex-1">{children}</main>
 
-          {/* ══ FOOTER ══════════════════════════════════════ */}
+          {/* ══ FOOTER ══════════════════════════════════════════════ */}
           <footer className="border-t border-white/[0.07] bg-[#020205]">
-            {/* Neon top accent line */}
-            <div className="h-px w-full bg-gradient-to-r from-transparent via-[#9efc3f]/25 to-transparent" />
+            {/* Neon accent line */}
+            <div className="h-px w-full bg-gradient-to-r from-transparent via-[#9efc3f]/28 to-transparent" />
 
-            {/* Main grid */}
-            <div className="mx-auto w-full max-w-7xl px-5 pt-8 pb-6 md:px-10 md:pt-16 md:pb-10">
+            <div className="mx-auto w-full max-w-7xl px-5 pt-10 pb-8 md:px-10 md:pt-16 md:pb-10">
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                {/* ── Brand ── */}
+                {/* Brand */}
                 <div className="sm:col-span-2 lg:col-span-1">
                   <div className="flex items-center gap-3">
                     <Image
@@ -78,28 +74,26 @@ export default function RootLayout({
                       className="rounded-full object-cover"
                     />
                     <span
-                      className="text-[18px] tracking-[0.12em] text-white md:text-[21px] md:tracking-[0.18em]"
+                      className="text-[19px] tracking-[0.16em] text-white md:text-[21px] md:tracking-[0.18em]"
                       style={D}
                     >
                       PROJECTX
                     </span>
                   </div>
-                  <p className="mt-3 max-w-[260px] text-[11px] leading-[1.6] text-slate-500 md:mt-4 md:text-[12px] md:leading-[1.75]">
+                  <p className="mt-3 max-w-[260px] text-[11px] leading-[1.7] text-slate-500 md:mt-4 md:text-[12px]">
                     Premium car detailing in Nicosia, Cyprus. Obsessive
                     precision for performance and luxury vehicles.
                   </p>
-                  {/* Location pill */}
-                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-slate-500 md:mt-5 md:px-3.5 md:py-2 md:text-[10px] md:tracking-[0.2em]">
+                  <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/[0.08] px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-slate-500 md:mt-5 md:px-3.5 md:py-2 md:text-[10px]">
                     <span className="h-1.5 w-1.5 rounded-full bg-[#9efc3f]/60" />
                     Nicosia, Cyprus
                   </div>
-                  {/* Instagram */}
-                  <div className="mt-3">
+                  <div className="mt-2.5">
                     <a
                       href={IG}
                       target="_blank"
                       rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] text-slate-400 transition-all duration-200 hover:border-[#9efc3f]/30 hover:text-[#9efc3f] md:gap-2.5 md:px-3.5 md:py-2 md:text-[10px] md:tracking-[0.2em]"
+                      className="inline-flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5 text-[9px] uppercase tracking-[0.18em] text-slate-400 transition-all duration-200 hover:border-[#9efc3f]/30 hover:text-[#9efc3f] md:px-3.5 md:py-2 md:text-[10px]"
                     >
                       <svg
                         className="h-3 w-3 flex-shrink-0"
@@ -113,17 +107,18 @@ export default function RootLayout({
                   </div>
                 </div>
 
-                {/* ── Navigation ── */}
+                {/* Navigation */}
                 <div className="hidden sm:block">
-                  <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
+                  <p className="mb-4 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Navigation
                   </p>
-                  <ul className="space-y-3">
+                  <ul className="space-y-2.5">
                     {NAV.map((link) => (
                       <li key={link}>
                         <a
                           href={`#${link}`}
                           className="flex items-center gap-2.5 text-[12px] capitalize text-slate-500 transition-colors duration-150 hover:text-slate-300"
+                          style={{ minHeight: "auto" }}
                         >
                           <span className="h-px w-3 bg-white/15" />
                           {link}
@@ -133,17 +128,18 @@ export default function RootLayout({
                   </ul>
                 </div>
 
-                {/* ── Services ── */}
+                {/* Services */}
                 <div className="hidden md:block">
-                  <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
+                  <p className="mb-4 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Services
                   </p>
-                  <ul className="space-y-3">
-                    {SERVICES.map((s) => (
+                  <ul className="space-y-2.5">
+                    {SVCS.map((s) => (
                       <li key={s}>
                         <a
                           href="#services"
                           className="flex items-start gap-2.5 text-[12px] text-slate-500 transition-colors duration-150 hover:text-slate-300"
+                          style={{ minHeight: "auto" }}
                         >
                           <span className="mt-[5px] h-1 w-1 flex-shrink-0 rounded-full bg-[#9efc3f]/35" />
                           {s}
@@ -153,25 +149,25 @@ export default function RootLayout({
                   </ul>
                 </div>
 
-                {/* ── Book CTA ── */}
+                {/* Book CTA */}
                 <div>
-                  <p className="mb-5 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
+                  <p className="mb-4 text-[8px] uppercase tracking-[0.32em] text-[#9efc3f]/65">
                     Book Now
                   </p>
-                  <p className="text-[11px] leading-[1.6] text-slate-500 md:text-[12px] md:leading-[1.75]">
+                  <p className="text-[11px] leading-[1.7] text-slate-500 md:text-[12px]">
                     DM on Instagram for a quote tailored to your vehicle.
-                    Limited weekly slots available.
+                    Limited weekly slots.
                   </p>
                   <a
                     href={IG}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn-neon mt-4 flex w-full items-center justify-center rounded-full bg-[#9efc3f] py-3 text-[10px] font-bold uppercase tracking-[0.18em] text-black md:mt-5 md:py-3.5 md:tracking-[0.22em]"
+                    className="btn-neon mt-4 flex w-full items-center justify-center rounded-full bg-[#9efc3f] py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-black md:mt-5 md:py-3.5"
+                    style={{ minHeight: "auto" }}
                   >
                     DM on Instagram
                   </a>
-                  {/* Trust signals */}
-                  <div className="mt-5 hidden space-y-2.5 md:block md:mt-6">
+                  <div className="mt-5 hidden space-y-2.5 md:block">
                     {[
                       "Paint-safe methods only",
                       "Performance & luxury vehicles",
