@@ -9,8 +9,7 @@ module.exports = {
       colors: {
         px: {
           bg: "#050509",
-          card: "#0e0e14",
-          "card-2": "#131319",
+          card: "#0c0c12",
           gold: "#f9b54a",
           neon: "#9efc3f",
         },
