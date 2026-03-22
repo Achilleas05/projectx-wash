@@ -45,7 +45,7 @@ export default function Header() {
         <a
           href="#home"
           onClick={close}
-          className="group flex items-center gap-3"
+          className="group flex items-center gap-2"
         >
           <div className="logo-ring relative h-9 w-9 flex-shrink-0 overflow-hidden rounded-full md:h-10 md:w-10">
             <Image
@@ -58,12 +58,12 @@ export default function Header() {
           </div>
           <div className="flex flex-col leading-none">
             <span
-              className="text-[19px] tracking-[0.18em] text-white transition-colors duration-200 group-hover:text-[#9efc3f] md:text-[22px]"
+              className="text-[16px] tracking-[0.1em] text-white transition-colors duration-200 group-hover:text-[#9efc3f] md:text-[22px] md:tracking-[0.18em]"
               style={D}
             >
               PROJECTX
             </span>
-            <span className="text-[7px] uppercase tracking-[0.36em] text-slate-500 md:text-[8px]">
+            <span className="hidden text-[7px] uppercase tracking-[0.28em] text-slate-500 sm:block md:text-[8px] md:tracking-[0.36em]">
               Wash · Cyprus
             </span>
           </div>
@@ -90,16 +90,8 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Mobile: Book pill + hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
-          <a
-            href={IG}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full bg-[#9efc3f] px-4 py-2 text-[9px] font-bold uppercase tracking-[0.18em] text-black"
-          >
-            Book
-          </a>
+        {/* Mobile: hamburger */}
+        <div className="flex items-center md:hidden">
           <button
             onClick={() => setOpen((v) => !v)}
             className={`flex flex-col items-center justify-center gap-[5px] rounded-lg border border-white/10 p-2.5 ${
