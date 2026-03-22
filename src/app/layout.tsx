@@ -196,6 +196,17 @@ export default function RootLayout({
                 <span className="text-[9px] uppercase tracking-[0.12em] text-slate-700 md:text-[10px] md:tracking-[0.16em]">
                   Nicosia, Cyprus · Premium Car Detailing
                 </span>
+                <span className="text-[9px] uppercase tracking-[0.12em] text-slate-700 md:text-[10px] md:tracking-[0.16em]">
+                  Built by{" "}
+                  <a
+                    href="https://achilleas05.github.io/portfolio-website/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-slate-600 transition-colors duration-200 hover:text-[#9efc3f]"
+                  >
+                    Achilleas Achilleos
+                  </a>
+                </span>
               </div>
             </div>
           </footer>
