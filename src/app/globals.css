@@ -2,6 +2,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 :root {
@@ -14,11 +15,37 @@ html {
   box-sizing: border-box;
 }
 
+/* ── Reduce motion ────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Mobile-first button optimization ─────── */
+@media (max-width: 640px) {
+  .btn-neon,
+  .btn-outline {
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+}
+
 body {
   background-color: #050509;
   color: #ededed;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
   -webkit-tap-highlight-color: transparent;
+}
+
+#__next {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 /* ── Grain overlay ─────────────────────────── */
@@ -279,6 +306,7 @@ body.is-scrolled .site-nav {
   content: "";
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background: linear-gradient(
     135deg,
     rgba(158, 252, 63, 0.05) 0,
@@ -386,6 +414,8 @@ body.is-scrolled .site-nav {
 
 /* ── Buttons ───────────────────────────────── */
 .btn-neon {
+  position: relative;
+  z-index: 1;
   transition: transform 0.22s ease, box-shadow 0.22s ease;
 }
 @media (hover: hover) {
@@ -507,5 +537,11 @@ body.is-scrolled .site-nav {
   }
   .marquee-track {
     animation-duration: 20s;
+  }
+  .px-ambient {
+    overflow-x: clip;
+  }
+  .gallery-item {
+    overflow: hidden;
   }
 }
